@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.pokopy.pokedexDetail
 
 
@@ -40,6 +42,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -463,64 +466,106 @@ fun PokedexEvolutionChain(
             color = MaterialTheme.colorScheme.onSurface
         )
         PokedexEvolutions(evolutionChain = evolutionInfo)
-        Spacer(modifier = Modifier.height(50.dp))
     }
 }
-
-
 
 @Composable
 fun PokedexEvolutions(
-    evolutionChain: EvolutionChainEntry,
+    evolutionChain: EvolutionChainEntry
 ){
-
     Row(
-        horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = evolutionChain.trigger,
-            fontSize = 8.sp,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        PokedexEvolution(
-            evolutionChain = evolutionChain
-        )
+    ){
+        PokedexEvolution(evolutionChain)
         Column(
-            modifier = Modifier.fillMaxHeight()
+            verticalArrangement = Arrangement.SpaceEvenly,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            for (evolution in evolutionChain.chain){
-                PokedexEvolutions(evolutionChain = evolution)
+            for (secondEvolution in evolutionChain.chain){
+                PokedexEvolutionCondition(evolutionInfo = secondEvolution)
             }
         }
-    }
+        Column(
+            verticalArrangement = Arrangement.SpaceEvenly,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            for (secondEvolution in evolutionChain.chain){
+                PokedexEvolution(evolutionInfo = secondEvolution)
+            }
+        }
+        if(evolutionChain.chain.isNotEmpty()){
+            Column(
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                for (thirdEvolution in evolutionChain.chain[0].chain){
+                    PokedexEvolutionCondition(evolutionInfo = thirdEvolution)
+                }
+            }
+            Column(
+                verticalArrangement = Arrangement.SpaceEvenly,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                for (thirdEvolution in evolutionChain.chain[0].chain){
+                    PokedexEvolution(evolutionInfo = thirdEvolution)
+                }
+            }
+        }
 
+
+    }
+    Spacer(modifier = Modifier.height(80.dp))
 
 }
-
 
 
 @Composable
 fun PokedexEvolution(
-    evolutionChain: EvolutionChainEntry,
+    evolutionInfo: EvolutionChainEntry
 ){
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.Top,
-        modifier = Modifier.fillMaxHeight()
+    Column(
+        verticalArrangement = Arrangement.SpaceEvenly,
+        horizontalAlignment = Alignment.CenterHorizontally
     ){
-
-
-
         SubcomposeAsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data(evolutionChain.imageUrl)
+                .data(evolutionInfo.imageUrl)
                 .crossfade(true)
                 .build(),
-            contentDescription = evolutionChain.pokemonName,
-            modifier = Modifier.size(100.dp)
+            contentDescription = evolutionInfo.pokemonName,
+            contentScale = ContentScale.FillWidth,
+            modifier = Modifier.size(70.dp)
         )
+        Text(
+            text = evolutionInfo.pokemonName.capitalize(Locale.ROOT),
+            fontSize = 8.sp,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.offset(y = (-5).dp)
+        )
+    }
+}
 
+@Composable
+fun PokedexEvolutionCondition(
+    evolutionInfo: EvolutionChainEntry
+){
+    Column(
+        verticalArrangement = Arrangement.SpaceEvenly,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = evolutionInfo.trigger,
+            fontSize = 8.sp,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.offset(y = 20.dp)
+        )
+        Icon(
+            painter = painterResource(id = R.drawable.baseline_arrow_right_alt_24),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.size(70.dp)
+        )
     }
 }
