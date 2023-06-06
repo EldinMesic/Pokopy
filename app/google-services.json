@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "50560764327",
+    "project_id": "pokopy-82cb0",
+    "storage_bucket": "pokopy-82cb0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:50560764327:android:2d6c9146ae608b842c4e82",
+        "android_client_info": {
+          "package_name": "com.example.pokopy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "50560764327-fdhcrnp2u4bof746rd6nd70otd6iauhf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLKPWF7FM6fbRoAtJ6d2CH9hN6qaoC3Ok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "50560764327-fdhcrnp2u4bof746rd6nd70otd6iauhf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

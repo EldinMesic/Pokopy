@@ -1,8 +1,6 @@
 package com.example.pokopy
 
-import android.app.ActionBar
 import android.os.Bundle
-import android.widget.Toolbar
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.remember
@@ -12,6 +10,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.pokopy.loginRegister.LoginRegisterScreen
+import com.example.pokopy.loginRegister.LoginRegisterViewModel
 import com.example.pokopy.pokedexDetail.PokedexDetailViewModel
 import com.example.pokopy.pokedexDetail.PokedexDetailScreen
 import com.example.pokopy.pokedexList.PokedexListViewModel
@@ -23,7 +23,7 @@ import java.util.Locale
 
 private var pokedexListViewModel = PokedexListViewModel()
 private var pokedexDetailViewModel = PokedexDetailViewModel()
-
+private var loginRegisterViewModel = LoginRegisterViewModel()
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 NavHost(
                     navController = navController,
-                    startDestination = "pokemon_list_screen"
+                    startDestination = "login_screen"
                 ) {
                     composable("pokemon_list_screen") {
                         PokemonListScreen(navController = navController, viewModel = pokedexListViewModel)
@@ -69,6 +69,13 @@ class MainActivity : ComponentActivity() {
                         )
 
                     }
+                    composable("login_screen"){
+                        LoginRegisterScreen(
+                            navController = navController,
+                            viewModel = loginRegisterViewModel
+                        )
+                    }
+
                 }
             }
         }

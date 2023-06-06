@@ -79,7 +79,7 @@ fun PokemonListScreen(
                 viewModel.searchPokemonList(it)
             }
             Spacer(modifier = Modifier.height(16.dp))
-            PokemonList(navController = navController, viewModel = viewModel)
+            PokedexList(navController = navController, viewModel = viewModel)
 
         }
     }
@@ -129,7 +129,7 @@ fun SearchBar(
 }
 
 @Composable
-fun PokemonList(
+fun PokedexList(
     navController: NavController,
     viewModel: PokedexListViewModel
 ){
