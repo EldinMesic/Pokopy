@@ -10,14 +10,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.pokopy.loginRegister.LoginRegisterScreen
+import com.example.pokopy.loginRegister.LoginScreen
 import com.example.pokopy.loginRegister.LoginRegisterViewModel
+import com.example.pokopy.loginRegister.RegisterScreen
 import com.example.pokopy.pokedexDetail.PokedexDetailViewModel
 import com.example.pokopy.pokedexDetail.PokedexDetailScreen
 import com.example.pokopy.pokedexList.PokedexListViewModel
 import com.example.pokopy.pokedexList.PokemonListScreen
 import com.example.pokopy.ui.theme.PokopyTheme
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import java.util.Locale
 
 
@@ -41,6 +43,10 @@ class MainActivity : ComponentActivity() {
                     startDestination = "login_screen"
                 ) {
                     composable("pokemon_list_screen") {
+                        if(!pokedexListViewModel.hasLoaded.value) {
+                            pokedexListViewModel.loadPokemon()
+                            Timber.tag("POKEMON").d("called")
+                        }
                         PokemonListScreen(navController = navController, viewModel = pokedexListViewModel)
                     }
                     composable(
@@ -70,7 +76,15 @@ class MainActivity : ComponentActivity() {
 
                     }
                     composable("login_screen"){
-                        LoginRegisterScreen(
+                        loginRegisterViewModel.clearData()
+                        LoginScreen(
+                            navController = navController,
+                            viewModel = loginRegisterViewModel
+                        )
+                    }
+                    composable("register_screen"){
+                        loginRegisterViewModel.clearData()
+                        RegisterScreen(
                             navController = navController,
                             viewModel = loginRegisterViewModel
                         )

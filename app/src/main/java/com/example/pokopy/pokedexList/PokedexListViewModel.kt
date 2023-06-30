@@ -11,7 +11,6 @@ import androidx.palette.graphics.Palette
 import com.example.pokopy.PokemonAPI.model.entries.PokedexListEntry
 import com.example.pokopy.PokemonAPI.retrofit.PokemonService
 import com.example.pokopy.PokemonAPI.retrofit.RetrofitHelper
-import com.example.pokopy.utilities.Constants.PAGE_SIZE
 import com.example.pokopy.utilities.Constants.POKEMON_COUNT
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,6 +27,7 @@ class PokedexListViewModel : ViewModel(){
     var loadError = mutableStateOf("")
     var isLoading = mutableStateOf(false)
     var endReached = mutableStateOf(false)
+    var hasLoaded = mutableStateOf(false)
 
     private var cachedPokemonList = listOf<PokedexListEntry>()
     private var isSearchStarting = true
@@ -35,7 +35,7 @@ class PokedexListViewModel : ViewModel(){
 
 
     init {
-        loadPokemon()
+        //loadPokemon()
     }
 
     fun searchPokemonList(query: String){
@@ -73,6 +73,8 @@ class PokedexListViewModel : ViewModel(){
             val result = retroInstance.getPokemonNames(POKEMON_COUNT)
 
             if(result.isSuccessful){
+                hasLoaded.value = true
+
                 val pokedexEntries = result.body()?.results?.mapIndexed{ index, entry ->
                     val number = if(entry.url.endsWith("/")){
                         entry.url.dropLast(1).takeLastWhile { it.isDigit() }

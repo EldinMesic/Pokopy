@@ -1,5 +1,6 @@
 package com.example.pokopy.pokedexList
 
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -57,6 +58,7 @@ fun PokemonListScreen(
     navController: NavController,
     viewModel: PokedexListViewModel
 ) {
+
     Surface(
         color = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxSize()
