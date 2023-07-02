@@ -34,9 +34,6 @@ class PokedexListViewModel : ViewModel(){
     var isSearching = mutableStateOf(false)
 
 
-    init {
-        //loadPokemon()
-    }
 
     fun searchPokemonList(query: String){
         val listToSearch = if(isSearchStarting){
@@ -81,7 +78,6 @@ class PokedexListViewModel : ViewModel(){
                     }else{
                         entry.url.takeLastWhile { it.isDigit() }
                     }
-                    //val url = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${number}.png"
                     val url = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${number}.png"
                     PokedexListEntry(entry.name.replaceFirstChar {
                         if (it.isLowerCase()) it.titlecase(

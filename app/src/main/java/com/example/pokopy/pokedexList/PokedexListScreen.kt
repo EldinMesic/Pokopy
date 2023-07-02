@@ -51,6 +51,7 @@ import coil.request.ImageRequest
 import com.example.pokopy.PokemonAPI.model.entries.PokedexListEntry
 import com.example.pokopy.R
 import com.example.pokopy.ui.theme.RobotoCondensed
+import timber.log.Timber
 
 
 @Composable
@@ -58,6 +59,10 @@ fun PokemonListScreen(
     navController: NavController,
     viewModel: PokedexListViewModel
 ) {
+    if(!viewModel.hasLoaded.value) {
+        viewModel.loadPokemon()
+    }
+
 
     Surface(
         color = MaterialTheme.colorScheme.background,

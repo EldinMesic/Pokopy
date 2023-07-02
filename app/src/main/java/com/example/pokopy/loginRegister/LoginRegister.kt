@@ -74,6 +74,9 @@ fun LoginScreen(
 
     val isLoading by remember { viewModel.isLoading }
 
+
+    viewModel.checkRemember(navController)
+
     if(isLoading){
         Surface(
             color = Color.Transparent,
@@ -314,14 +317,6 @@ fun UsernameInputSection(
 
 
 //Register screen
-
-@Preview
-@Composable
-fun SimpleComposablePreview(){
-    RegisterScreen(navController = rememberNavController(), viewModel = LoginRegisterViewModel())
-}
-
-
 @Composable
 fun EmailInputSection(
     viewModel: LoginRegisterViewModel,
@@ -452,7 +447,7 @@ fun RegisterConfirmationSection(
             fontSize = 14.sp
         )
         TextButton(onClick = {
-            navController.navigate("login_screen")
+            navController.popBackStack()
         }) {
             Text(text = "Log In")
         }
