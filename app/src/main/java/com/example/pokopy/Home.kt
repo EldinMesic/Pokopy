@@ -1,8 +1,5 @@
 package com.example.pokopy
 
-import android.util.Log
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,54 +7,48 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import com.example.pokopy.database.User
-import com.example.pokopy.loginRegister.EmailInputSection
-import com.example.pokopy.loginRegister.LoginConfirmationSection
-import com.example.pokopy.loginRegister.LoginPasswordInputSection
-import com.example.pokopy.loginRegister.LoginRegisterTopSection
-import com.example.pokopy.loginRegister.RememberMeSection
+import com.example.pokopy.loginRegister.PokopyTopSection
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun HomeScreen(
     navController : NavController
 ){
 
-    var time1 = LocalDateTime.now()
-    var firebaseAuth = FirebaseAuth.getInstance()
-    var firebaseRef = Firebase.database.reference
+    val firebaseAuth = FirebaseAuth.getInstance()
+    val firebaseRef = Firebase.database.reference
 
-    var user = firebaseRef.child("users").child(firebaseAuth.currentUser!!.uid).get().addOnSuccessListener {
-        val user = it.getValue(User::class.java)
-        Log.d("USER", user.toString())
+    var user by remember {
+        mutableStateOf(User())
     }
+
+    if(firebaseAuth.currentUser != null){
+        firebaseRef.child("users").child(firebaseAuth.currentUser!!.uid).get().addOnSuccessListener {
+            user = it.getValue(User::class.java) as User
+        }
+    }
+
 
     Surface(
         color = MaterialTheme.colorScheme.surface,
@@ -68,32 +59,43 @@ fun HomeScreen(
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.Top
         ) {
-            LoginRegisterTopSection()
+            PokopyTopSection()
 
             Column(
                 verticalArrangement = Arrangement.Top,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 40.dp)
-                    .clickable {
-
-                        var time2 = LocalDateTime.now()
-                        var difference = time2.toEpochSecond(ZoneOffset.UTC) - time1.toEpochSecond(
-                            ZoneOffset.UTC)
-                        Log.d("TIME", difference.toString())
-                    }
+                    .padding(horizontal = 40.dp, vertical = 20.dp)
             ) {
                 Text(
-                    text = "Log In",
+                    textAlign = TextAlign.Center,
+                    text = "Welcome back ${user.username}",
                     fontWeight = FontWeight.Bold,
-                    fontSize = 40.sp,
+                    fontSize = 35.sp,
                     color = MaterialTheme.colorScheme.surfaceVariant
                 )
-
-                //LoginConfirmationSection(viewModel, navController)
                 Spacer(modifier = Modifier.height(80.dp))
+
+                HomeSelectSegment(
+                    navController = navController,
+                    location = "pokemon_list_screen",
+                    text = "Pokedex"
+                )
+                HomeSelectSegment(
+                    navController = navController,
+                    location = "user_pokemons_screen",
+                    text = "My Collection"
+                )
+                HomeSelectSegment(
+                    navController = navController,
+                    location = "explore_screen",
+                    text = "Explore"
+                )
+                SignOutSegment(
+                    navController = navController
+                )
 
 
             }
@@ -102,3 +104,48 @@ fun HomeScreen(
     }
 
 }
+
+
+
+
+
+@Composable
+fun HomeSelectSegment(
+    navController: NavController,
+    location : String,
+    text : String
+){
+    Button(
+        onClick = { navController.navigate(location) },
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ){
+        Text(
+            text = text,
+            fontSize = 24.sp
+        )
+    }
+    Spacer(modifier = Modifier.height(16.dp))
+}
+
+@Composable
+fun SignOutSegment(
+    navController: NavController
+){
+    Spacer(modifier = Modifier.height(32.dp))
+    Button(
+        onClick = {
+            FirebaseAuth.getInstance().signOut()
+            navController.navigate("login_screen"){ popUpTo(0) }
+                  },
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth()
+    ){
+        Text(
+            text = "Sign Out",
+            fontSize = 24.sp
+        )
+    }
+    Spacer(modifier = Modifier.height(16.dp))
+}
+

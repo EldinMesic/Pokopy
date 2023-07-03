@@ -1,4 +1,4 @@
-package com.example.pokopy.pokedexList
+package com.example.pokopy.myCollection
 
 
 import androidx.compose.foundation.Image
@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,6 +33,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
@@ -41,7 +41,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -53,20 +52,19 @@ import androidx.navigation.NavController
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import coil.request.ImageRequest
-import com.example.pokopy.PokemonAPI.model.entries.PokedexListEntry
 import com.example.pokopy.R
+import com.example.pokopy.database.UserPokemon
 import com.example.pokopy.ui.theme.RobotoCondensed
 
 
 @Composable
-fun PokemonListScreen(
+fun MyCollection(
     navController: NavController,
-    viewModel: PokedexListViewModel
+    viewModel: MyCollectionViewModel
 ) {
-    if(!viewModel.hasLoaded.value) {
-        viewModel.loadPokemon()
-    }
 
+
+    viewModel.getUserPokemon()
 
     Surface(
         color = MaterialTheme.colorScheme.background,
@@ -95,7 +93,7 @@ fun PokemonListScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(CenterHorizontally)
-                )
+            )
             SearchBar(
                 hint = "Search...",
                 modifier = Modifier
@@ -105,7 +103,7 @@ fun PokemonListScreen(
                 viewModel.searchPokemonList(it)
             }
             Spacer(modifier = Modifier.height(16.dp))
-            PokedexList(navController = navController, viewModel = viewModel)
+            CollectionList(viewModel = viewModel)
 
         }
     }
@@ -125,23 +123,23 @@ fun SearchBar(
     }
 
     Box(modifier = modifier){
-      BasicTextField(
-          value = text,
-          onValueChange = {
-              text = it
-              onSearch(it)
-          },
-          maxLines = 1,
-          singleLine = true,
-          textStyle = TextStyle(color = Color.Black),
-          modifier = Modifier
-              .fillMaxWidth()
-              .shadow(5.dp, CircleShape)
-              .background(Color.White, CircleShape)
-              .padding(horizontal = 20.dp, vertical = 12.dp)
-              .onFocusChanged {
-                  isHintDisplayed = !it.isFocused && text.isEmpty()
-              }
+        BasicTextField(
+            value = text,
+            onValueChange = {
+                text = it
+                onSearch(it)
+            },
+            maxLines = 1,
+            singleLine = true,
+            textStyle = TextStyle(color = Color.Black),
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(5.dp, CircleShape)
+                .background(Color.White, CircleShape)
+                .padding(horizontal = 20.dp, vertical = 12.dp)
+                .onFocusChanged {
+                    isHintDisplayed = !it.isFocused && text.isEmpty()
+                }
         )
         if(isHintDisplayed){
             Text(
@@ -155,22 +153,18 @@ fun SearchBar(
 }
 
 @Composable
-fun PokedexList(
-    navController: NavController,
-    viewModel: PokedexListViewModel
+fun CollectionList(
+    viewModel: MyCollectionViewModel
 ){
-    val pokemonList by remember { viewModel.pokemonNames }
-
-
+    val pokemonList by remember { viewModel.userPokemons }
 
     LazyColumn(contentPadding = PaddingValues(16.dp)){
-        val itemCount = if(pokemonList.size % 2 == 0) {
-            pokemonList.size / 2
-        }else{
-            pokemonList.size / 2 + 1
-        }
-        items(itemCount){
-            PokedexRow(rowIndex = it, entries = pokemonList, navController = navController, viewModel = viewModel)
+        items(pokemonList.size){
+            CollectionEntry(
+                entry = pokemonList[it],
+                viewModel = viewModel
+            )
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 
@@ -179,11 +173,10 @@ fun PokedexList(
 
 
 @Composable
-fun PokedexEntry(
-    entry: PokedexListEntry,
-    navController: NavController,
+fun CollectionEntry(
+    entry: UserPokemon,
     modifier: Modifier = Modifier,
-    viewModel: PokedexListViewModel
+    viewModel: MyCollectionViewModel
 ){
     val defaultDominantColor = MaterialTheme.colorScheme.surface
     var dominantColor by remember {
@@ -195,7 +188,7 @@ fun PokedexEntry(
         modifier = modifier
             .shadow(5.dp, RoundedCornerShape(10.dp))
             .clip(RoundedCornerShape(10.dp))
-            .aspectRatio(1f)
+            .aspectRatio(3f)
             .background(
                 Brush.verticalGradient(
                     listOf(
@@ -204,83 +197,61 @@ fun PokedexEntry(
                     )
                 )
             )
-            .clickable {
-                navController.navigate(
-                    "pokemon_detail_screen/${dominantColor.toArgb()}/${entry.pokemonName}"
-                )
-            }
     ){
-        Column{
-            Text(
-                text = "#${entry.number}",
-                fontFamily = RobotoCondensed,
-                fontSize = 20.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-            SubcomposeAsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(entry.imageUrl)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = entry.pokemonName,
-                contentScale = ContentScale.Crop,
-                loading = {
-                          CircularProgressIndicator(
-                              color = MaterialTheme.colorScheme.primary,
-                              modifier = Modifier.scale(0.5f)
-                          )
-                },
-                success = {
-                          viewModel.calcDominantColor(it.result.drawable){
-                              dominantColor = it
-                          }
-                    SubcomposeAsyncImageContent()
-                },
-                modifier = Modifier
-                    .size(110.dp)
-                    .align(CenterHorizontally)
-            )
-            Text(
-                text = entry.pokemonName,
-                fontFamily = RobotoCondensed,
-                fontSize = 20.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-    }
-}
-
-
-
-@Composable
-fun PokedexRow(
-    rowIndex: Int,
-    entries: List<PokedexListEntry>,
-    viewModel: PokedexListViewModel,
-    navController: NavController
-){
-    Column{
         Row{
-            PokedexEntry(
-                entry = entries[rowIndex * 2],
-                navController = navController,
-                viewModel = viewModel,
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            if(entries.size >= rowIndex * 2 +2){
-                PokedexEntry(
-                    entry = entries[rowIndex * 2 +1],
-                    navController = navController,
-                    viewModel = viewModel,
-                    modifier = Modifier.weight(1f)
+            Column(modifier = Modifier.weight(0.75f)){
+                SubcomposeAsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(entry.pokemonImage)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = entry.pokemonName,
+                    contentScale = ContentScale.Crop,
+                    loading = {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.scale(0.5f)
+                        )
+                    },
+                    success = { it ->
+                        viewModel.calcDominantColor(it.result.drawable) {
+                            dominantColor = it
+                        }
+                        SubcomposeAsyncImageContent()
+                    },
+                    modifier = Modifier
+                        .size(110.dp)
+                        .align(CenterHorizontally)
                 )
-            }else{
-                Spacer(modifier = Modifier.weight(1f))
             }
+            Column(modifier = Modifier
+                .weight(1f)
+                .align(CenterVertically)) {
+                Text(
+                    text = "#${entry.pokemonID}",
+                    fontFamily = RobotoCondensed,
+                    fontSize = 20.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Text(
+                    text = entry.pokemonName,
+                    fontFamily = RobotoCondensed,
+                    fontSize = 20.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Text(
+                    text = "Caught: ${entry.count}",
+                    fontFamily = RobotoCondensed,
+                    fontSize = 20.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
         }
-        Spacer(modifier = Modifier.height(16.dp))
     }
 }

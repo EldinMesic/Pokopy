@@ -3,7 +3,6 @@ package com.example.pokopy
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.remember
@@ -17,21 +16,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.pokopy.database.UserPokemonDao
 import com.example.pokopy.database.UserPokemonDatabase
+import com.example.pokopy.explore.ExploreScreen
+import com.example.pokopy.explore.ExploreViewModel
 import com.example.pokopy.loginRegister.LoginScreen
 import com.example.pokopy.loginRegister.LoginRegisterViewModel
 import com.example.pokopy.loginRegister.RegisterScreen
+import com.example.pokopy.myCollection.MyCollection
+import com.example.pokopy.myCollection.MyCollectionViewModel
 import com.example.pokopy.pokedexDetail.PokedexDetailViewModel
 import com.example.pokopy.pokedexDetail.PokedexDetailScreen
 import com.example.pokopy.pokedexList.PokedexListViewModel
 import com.example.pokopy.pokedexList.PokemonListScreen
 import com.example.pokopy.ui.theme.PokopyTheme
-import com.example.pokopy.userPokemons.UserPokemonsScreen
-import com.example.pokopy.userPokemons.UserPokemonsViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.qualifiers.ApplicationContext
-import timber.log.Timber
 import java.util.Locale
 
 
@@ -41,22 +39,22 @@ import java.util.Locale
 class MainActivity : ComponentActivity() {
 
 
-    val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
 
-        var pokedexListViewModel = PokedexListViewModel()
-        var pokedexDetailViewModel = PokedexDetailViewModel()
-        var loginRegisterViewModel = LoginRegisterViewModel(dataStore)
+        val pokedexListViewModel = PokedexListViewModel()
+        val pokedexDetailViewModel = PokedexDetailViewModel()
+        val loginRegisterViewModel = LoginRegisterViewModel(dataStore)
 
         setContent {
             PokopyTheme {
                 val navController = rememberNavController()
-                val userPokemonViewModel = UserPokemonsViewModel(UserPokemonDatabase.getDatabase(LocalContext.current).dao)
-
+                val myCollectionViewModel = MyCollectionViewModel(UserPokemonDatabase.getDatabase(LocalContext.current).dao)
+                val exploreViewModel = ExploreViewModel(UserPokemonDatabase.getDatabase(LocalContext.current).dao)
 
                 NavHost(
                     navController = navController,
@@ -109,9 +107,15 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     composable("user_pokemons_screen"){
-                        UserPokemonsScreen(
+                        MyCollection(
                             navController = navController,
-                            viewModel = userPokemonViewModel
+                            viewModel = myCollectionViewModel
+                        )
+                    }
+                    composable("explore_screen"){
+                        ExploreScreen(
+                            navController = navController,
+                            viewModel = exploreViewModel
                         )
                     }
 

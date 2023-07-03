@@ -53,12 +53,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.pokopy.R
 
 
@@ -127,7 +125,7 @@ fun LoginScreen(
             horizontalAlignment = CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            LoginRegisterTopSection()
+            PokopyTopSection()
 
             Column(
                 verticalArrangement = Arrangement.Top,
@@ -197,7 +195,7 @@ fun LoginConfirmationSection(
 
 
 @Composable
-fun LoginRegisterTopSection(){
+fun PokopyTopSection(){
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -520,7 +518,7 @@ fun RegisterScreen(
             horizontalAlignment = CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            LoginRegisterTopSection()
+            PokopyTopSection()
 
             Column(
                 verticalArrangement = Arrangement.Top,

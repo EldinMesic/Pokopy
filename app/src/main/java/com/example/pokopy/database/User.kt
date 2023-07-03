@@ -5,6 +5,6 @@ import java.time.LocalDateTime
 data class User(
     val username: String? = null,
     val email: String? = null,
-    val stamina: Double = 100.00,
+    val canExplore: Boolean = false,
     val lastUpdate: String = LocalDateTime.now().toString()
 )

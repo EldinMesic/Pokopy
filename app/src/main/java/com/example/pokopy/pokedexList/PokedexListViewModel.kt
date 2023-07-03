@@ -20,13 +20,10 @@ import java.util.Locale
 class PokedexListViewModel : ViewModel(){
 
 
-    private var currPage = 0
 
-    val pokemonNamesPaginated = mutableStateOf<List<PokedexListEntry>>(listOf())
     val pokemonNames = mutableStateOf<List<PokedexListEntry>>(listOf())
     var loadError = mutableStateOf("")
     var isLoading = mutableStateOf(false)
-    var endReached = mutableStateOf(false)
     var hasLoaded = mutableStateOf(false)
 
     private var cachedPokemonList = listOf<PokedexListEntry>()
